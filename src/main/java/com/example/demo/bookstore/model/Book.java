@@ -3,6 +3,7 @@ package com.example.demo.bookstore.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 @Entity
@@ -12,7 +13,7 @@ import java.util.Date;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
+@ToString()
 public class Book {
 
     @Id
@@ -33,5 +34,11 @@ public class Book {
     private String publisher;
     private String description;
     private Double rating;
+    private Integer ratingCount;
+    private ArrayList<String> additionalComments;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "review_id", referencedColumnName = "id")
+    private Review reviews;
 
 }

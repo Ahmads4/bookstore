@@ -1,6 +1,7 @@
 package com.example.demo.bookstore.controller;
 
 import com.example.demo.bookstore.model.Book;
+import com.example.demo.bookstore.model.ReviewRequest;
 import com.example.demo.bookstore.service.BookStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,6 +43,10 @@ public class BookController {
         bookStoreService.addBook(book);
     }
 
-    //Rate a book
+    @PostMapping(path = "/{id}/review")
+    public void rateBook(@PathVariable("id") int bookId, @RequestBody ReviewRequest reviewRequest) {
+        bookStoreService.rateBook(bookId, reviewRequest.getRating(), reviewRequest.getComment());
+    }
+
 
 }

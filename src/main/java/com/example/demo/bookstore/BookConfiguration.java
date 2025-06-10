@@ -2,7 +2,7 @@ package com.example.demo.bookstore;
 
 import com.example.demo.bookstore.model.Book;
 import com.example.demo.bookstore.model.DataGenerator;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.demo.bookstore.repository.BookStoreRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
