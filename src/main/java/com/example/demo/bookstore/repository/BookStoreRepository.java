@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface BookStoreRepository extends JpaRepository<Book, Integer> {
+public interface BookStoreRepository extends JpaRepository<Book, UUID> {
 
     @Query("SELECT b FROM Book b WHERE LOWER(b.author) LIKE LOWER(CONCAT('%', ?1, '%'))")
     List<Book> findBookByAuthor(String author);

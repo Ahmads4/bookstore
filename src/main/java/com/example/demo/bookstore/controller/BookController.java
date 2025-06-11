@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/api/v1/books")
@@ -28,12 +29,12 @@ public class BookController {
     }
 
     @DeleteMapping(path = "{id}")
-    public void deleteBook(@PathVariable(value = "id") int id) {
+    public void deleteBook(@PathVariable(value = "id") UUID id) {
         bookStoreService.deleteBook(id);
     }
 
     @PutMapping(path = "{id}")
-    public void updateBookPrice(@PathVariable(value = "id") int id,
+    public void updateBookPrice(@PathVariable(value = "id") UUID id,
                                 @RequestBody Double price) {
         bookStoreService.updateBookPrice(id, price);
     }
@@ -44,8 +45,8 @@ public class BookController {
     }
 
     @PostMapping(path = "/{id}/review")
-    public void rateBook(@PathVariable("id") int bookId, @RequestBody ReviewRequest reviewRequest) {
-        bookStoreService.rateBook(bookId, reviewRequest.getRating(), reviewRequest.getComment());
+    public void rateBook(@PathVariable("id") UUID bookId, @RequestBody ReviewRequest reviewRequest) {
+        bookStoreService.rateBook(bookId, reviewRequest.getUserId(), reviewRequest.getRating(), reviewRequest.getComment());
     }
 
 

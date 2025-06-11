@@ -57,6 +57,41 @@ public class DataGenerator {
 
     }
 
+    public static List<User> generateUserData() {
+        return Arrays.asList(
+                User.builder()
+                        .email("john.doe@example.com")
+                        .firstName("John")
+                        .lastName("Doe")
+                        .build(),
+
+                User.builder()
+                        .email("jane.smith@example.com")
+                        .firstName("Jane")
+                        .lastName("Smith")
+                        .build(),
+
+                User.builder()
+                        .email("peter.jones@example.com")
+                        .firstName("Peter")
+                        .lastName("Jones")
+                        .build(),
+
+                User.builder()
+                        .email("alice.williams@example.com")
+                        .firstName("Alice")
+                        .lastName("Williams")
+                        .build(),
+
+                User.builder()
+                        .email("bob.brown@example.com")
+                        .firstName("Bob")
+                        .lastName("Brown")
+                        .build()
+        );
+    }
+
+
     private static Date getDate(int year, int month, int day) {
         Calendar cal = Calendar.getInstance();
         cal.set(year, month, day, 0, 0, 0);

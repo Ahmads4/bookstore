@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Table(name = "books_table")
@@ -17,16 +18,8 @@ import java.util.Date;
 public class Book {
 
     @Id
-    @SequenceGenerator(
-            name = "book_sequence",
-            sequenceName = "book_sequence",
-            allocationSize = 1
-    )
-    @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "book_sequence"
-    )
-    private int id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
     private String title;
     private String author;
     private Double price;
@@ -36,9 +29,4 @@ public class Book {
     private Double rating;
     private Integer ratingCount;
     private ArrayList<String> additionalComments;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "review_id", referencedColumnName = "id")
-    private Review reviews;
-
 }
