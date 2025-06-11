@@ -2,7 +2,9 @@ package com.example.demo.bookstore.controller;
 
 import com.example.demo.bookstore.model.Book;
 import com.example.demo.bookstore.model.ReviewRequest;
+import com.example.demo.bookstore.model.User;
 import com.example.demo.bookstore.service.BookStoreService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

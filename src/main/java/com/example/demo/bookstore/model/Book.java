@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -26,7 +27,12 @@ public class Book {
     private Date publishDate;
     private String publisher;
     private String description;
-    private Double rating;
+    private Double averageRating;
     private Integer ratingCount;
-    private ArrayList<String> additionalComments;
+
+    @Builder.Default
+    @ElementCollection
+    @CollectionTable(name = "book_reviews", joinColumns = @JoinColumn(name = "book_id"))
+    private List<ReviewData> reviewData = new ArrayList<>();
+
 }
