@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -14,7 +15,6 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString()
 public class Book {
 
     @Id
@@ -26,7 +26,14 @@ public class Book {
     private Date publishDate;
     private String publisher;
     private String description;
-    private Double rating;
-    private Integer ratingCount;
-    private ArrayList<String> additionalComments;
+    @Builder.Default
+    private Double averageRating = 0.0;
+    @Builder.Default
+    private Integer ratingCount = 0;
+
+    @Builder.Default
+    @ElementCollection
+    @CollectionTable(name = "book_reviews", joinColumns = @JoinColumn(name = "book_id"))
+    private List<ReviewData> reviewData = new ArrayList<>();
+
 }

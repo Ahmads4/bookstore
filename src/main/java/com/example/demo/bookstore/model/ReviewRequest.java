@@ -13,5 +13,4 @@ public class ReviewRequest {
     private UUID userId;
     private double rating;
     private String comment;
-
 }

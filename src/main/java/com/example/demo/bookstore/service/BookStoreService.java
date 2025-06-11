@@ -1,5 +1,6 @@
 package com.example.demo.bookstore.service;
 
+import com.example.demo.bookstore.model.ReviewData;
 import com.example.demo.bookstore.model.ReviewedBook;
 import com.example.demo.bookstore.model.User;
 import com.example.demo.bookstore.repository.BookStoreRepository;
@@ -9,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class BookStoreService {
@@ -62,56 +60,65 @@ public class BookStoreService {
         bookStoreRepository.save(book);
     }
 
+    @Transactional
     public void rateBook(UUID bookId, UUID userId, double rating, String comment) {
-        var user = userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("User not found"));
+        var user = userRepository.findById(userId).orElseThrow(() -> new IllegalStateException("User with id " + userId + " does not exist"));
 
-        if (hasUserReviewedBook(user, bookId)) {
-            updateUserRating(user, bookId, rating);
-        } else {
-            Book book = bookStoreRepository.findById(bookId).orElseThrow(() -> new IllegalStateException("Book with id " + bookId + " does not exist"));
+        Book book = bookStoreRepository.findById(bookId).orElseThrow(() -> new IllegalStateException("Book with id " + bookId + " does not exist"));
 
-            if (rating < 0 || rating > 5) {
-                throw new IllegalArgumentException("Rating must be between 0 and 5");
-            }
-
-            double currentAverage = book.getRating() != null ? book.getRating() : 0.0;
-            int currentCount = book.getRatingCount() != null ? book.getRatingCount() : 0;
-
-            double newAverage = ((currentAverage * currentCount) + rating) / (currentCount + 1);
-
-            book.setRating(newAverage);
-            book.setRatingCount(currentCount + 1);
-            ArrayList<String> comments = book.getAdditionalComments() != null ? book.getAdditionalComments() : new ArrayList<>();
-            if (!comment.isEmpty()) {
-                comments.add(comment);
-                book.setAdditionalComments(comments);
-            }
-            bookStoreRepository.save(book);
-            List<ReviewedBook> reviewedBooks = user.getReviewedBooks();
-            reviewedBooks.add(new ReviewedBook(bookId, rating));
+        if (rating < 0 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 0 and 5");
         }
-    }
 
+        double currentAvg = Objects.requireNonNullElse(book.getAverageRating(), 0.0);
+        int currentCount = Objects.requireNonNullElse(book.getRatingCount(), 0);
 
-    private void updateUserRating(User user, UUID bookId, double rating) {
-        ReviewedBook reviewedBook = getReviewedBook(user, bookId);
-        reviewedBook.setRating(rating);
+        ReviewData existingReview = book.getReviewData().stream()
+                .filter(reviewData -> reviewData.getUserId().equals(userId))
+                .findFirst()
+                .orElse(null);
 
-    }
-
-    private boolean hasUserReviewedBook(User user, UUID bookId) {
-        ReviewedBook reviewedBook = getReviewedBook(user, bookId);
-        return reviewedBook != null;
-    }
-
-    private static ReviewedBook getReviewedBook(User user, UUID bookId) {
-        return Optional.ofNullable(user.getReviewedBooks()) // Wrap the potentially null list in an Optional
-                .stream() // Create a stream from the Optional (either containing the list or empty)
-                .flatMap(List::stream) // Flatten the list into a stream of ReviewedBook objects
-                .filter(book -> book.getBookId().equals(bookId)) // Filter for the matching bookId
-                .findFirst() // Get the first matching book
-                .orElse(null); // Return the book if found, otherwise null
+        if (existingReview != null) {
+            handleExistingReview(user, rating, comment, currentAvg, currentCount, existingReview, book);
+        } else {
+            handleNewReview(user, rating, comment, currentAvg, currentCount, book);
+        }
 
     }
 
+    @Transactional
+    private static void handleNewReview(User user, double rating, String comment, double currentAvg, int currentCount, Book book) {
+        double newAvg = ((currentAvg * currentCount) + rating) / (currentCount + 1);
+        book.setAverageRating((newAvg));
+        book.setRatingCount(currentCount + 1);
+
+        ReviewData review = new ReviewData();
+        review.setUserId(user.getId());
+        review.setRating(rating);
+        review.setAdditionalComments(comment);
+        user.getReviewedBooks().add(new ReviewedBook(book.getId(), rating, comment));
+
+        book.getReviewData().add(review);
+
+    }
+
+    @Transactional
+    private void handleExistingReview(User user, double rating, String comment, double currentAvg, int currentCount, ReviewData existingReview, Book book) {
+        double newAvg = updateAverageOnEdit(currentAvg, currentCount, existingReview.getRating(), rating);
+        book.setAverageRating((newAvg));
+        existingReview.setAdditionalComments(comment);
+        existingReview.setRating(rating);
+        user.getReviewedBooks().set(0, new ReviewedBook(book.getId(), rating, comment));
+
+    }
+
+    private double updateAverageOnEdit(double currentAvg, int count, double oldRating, double newRating) {
+        double total = currentAvg * count;
+        total = total - oldRating + newRating;
+        return total / count;
+    }
+
+    public List<User> getUsers() {
+        return userRepository.findAllUsers();
+    }
 }
